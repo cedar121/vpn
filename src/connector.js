@@ -16,6 +16,12 @@ socket.on('listening', () => {
   console.log(`[connector] listening ${socket.address().address}:${socket.address().port}`);
 });
 
+socket.on('message', (msg, rinfo) => {
+  const pkg = JSON.parse(msg.toString());
+
+  console.log(`[connector] message [${rinfo.address}:${rinfo.port}] {opcode: ${pkg.opcode}}`);
+});
+
 const peers = [];
 
 let server;
@@ -34,6 +40,7 @@ function create() {
         socket.send(JSON.stringify({
           opcode: 'register',
           data: {
+            myName: ip,
             endpoint: {
               port: socket.address().port,
               address: ip

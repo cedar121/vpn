@@ -4,6 +4,8 @@ const utils = require('./utils');
 
 const server = dgram.createSocket('udp4');
 
+const peers = [];
+
 server.on('listening', () => {
   console.log(`[binder] listening ${server.address().address}:${server.address().port}`);
 });
@@ -23,10 +25,29 @@ server.on('message', (msg, rinfo) => {
 
   switch (pkg.opcode) {
     case 'register':
+      let bid = 2;
 
+      while (peers.findIndex(peer => peer.brothelAddress === `127.0.0.${bid}`) !== -1) {
+        bid++;
+      }
+
+      peers.push({
+        name: pkg.data.myName,
+        endpoint: pkg.endpoint,
+        brothelAddress: `127.0.0.${bid}`
+      });
       break;
   }
 });
+
+function sendNewSucker(peerInfo) {
+  peers.forEach(peer => {
+    server.send(JSON.stringify({
+      opcode: 'new-sucker',
+      data: peerInfo
+    }), peer.endpoint.port, peer.end.address);
+  });
+}
 
 function run() {
   return new Promise((resolve, reject) => {

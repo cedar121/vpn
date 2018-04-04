@@ -2,6 +2,7 @@ const http = require('http');
 const qs = require('qs');
 const axios = require('axios');
 const natUpnp = require('nat-upnp');
+const utils = require('./../node_modules/find-process/lib/utils');
 
 const upnp = natUpnp.createClient();
 
@@ -39,7 +40,7 @@ async function checkTcpIsOpened(port, options = {}) {
   });
 }
 
-function getNetworkIP() {
+async function getNetworkIP() {
   return new Promise((resolve, reject) => {
     http.get({host: 'api.ipify.org', port: 80, path: '/'}, resp => {
       resp.on('data', ip => {
@@ -49,7 +50,56 @@ function getNetworkIP() {
   });
 }
 
+function usingPorts(ppid) {
+  return new Promise((resolve, reject) => {
+    utils.exec('netstat -ano', function (err, stdout, stderr) {
+      // replace header
+      let data = utils.stripLine(stdout.toString(), 4);
+      let columns = utils.extractColumns(data, [0, 1, 2, 3, 4], 5).filter(column => {
+        let pid, matches = String(column[1]).match(/:(\d+)$/);
+
+        if (!matches) {
+          return false;
+        }
+
+        switch (column[0]) {
+          case 'TCP':
+            // [type, state, pid] = ['TCP', column[3], column[4]];
+            pid = column[4];
+            break;
+          case 'UDP':
+            // [type, pid] = ['UDP', column[3]];
+            pid = column[3];
+            break;
+        }
+
+        if (pid == ppid) {
+          return true;
+        }
+      }).map(cols => {
+        let type, state, pid, port = parseInt(cols[1].substring(cols[1].indexOf(':') + 1));
+
+        switch (cols[0]) {
+          case 'TCP':
+            [type, state, pid] = ['TCP', cols[3], cols[4]];
+            break;
+          case 'UDP':
+            [type, pid] = ['UDP', cols[3]];
+            break;
+        }
+
+        return {
+          type, state, pid, port
+        };
+      });
+
+      resolve(columns);
+    });
+  });
+}
+
 module.exports = {
   getNetworkIP,
-  checkTcpIsOpened
+  checkTcpIsOpened,
+  usingPorts
 };
