@@ -31,11 +31,15 @@ server.on('message', (msg, rinfo) => {
         bid++;
       }
 
-      peers.push({
+      const peerInfo = {
         name: pkg.data.myName,
         endpoint: pkg.endpoint,
         brothelAddress: `127.0.0.${bid}`
-      });
+      };
+
+      peers.push(peerInfo);
+
+      sendNewSucker(peerInfo);
       break;
   }
 });
