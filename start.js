@@ -10,8 +10,6 @@ const options = {};
 options.ignoreTunnelingActions = process.argv.find(arg => arg === '--ignoreTunneling');
 options.onlyAsBinder = Boolean(process.argv.find(arg => arg === '--onlyAsBinder'));
 
-console.log(options);
-
 const promises = {};
 
 promises['binder'] = binder.run();

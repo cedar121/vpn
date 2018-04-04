@@ -17,7 +17,15 @@ server.on('error', err => {
 });
 
 server.on('message', (msg, rinfo) => {
-  console.log(`[binder] message ${rinfo.address}:${rinfo.port}`);
+  const pkg = JSON.parse(msg.toString());
+
+  console.log(`[binder] message ${rinfo.address}:${rinfo.port} {opcode: ${pkg.opcode}}`);
+
+  switch (pkg.opcode) {
+    case 'register':
+
+      break;
+  }
 });
 
 function run() {
