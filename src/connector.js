@@ -28,7 +28,7 @@ socket.on('message', (msg, rinfo) => {
     case 'new-sucker':
       const isMe = me.address === pkg.data.endpoint.address && me.port === pkg.data.endpoint.port;
 
-      console.log(`[connector] new-sucker {endpoint: ${pkg.data.endpoint}} {isMe: ${isMe}`);
+      console.log(`[connector] new-sucker {endpoint: ${JSON.stringify(pkg.data.endpoint)}, brothelAddress: ${pkg.data.brothelAddress}} {isMe: ${isMe}}`);
       break;
   }
 });
