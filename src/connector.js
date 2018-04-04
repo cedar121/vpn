@@ -16,13 +16,13 @@ socket.on('listening', () => {
   console.log(`[connector] listening ${socket.address().address}:${socket.address().port}`);
 });
 
-socket.bind();
-
 const peers = [];
 
 let server;
 
 function create() {
+  socket.bind();
+
   return Promise.props({
     ip: utils.getNetworkIP()
   }).then(({ip}) => {
