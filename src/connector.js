@@ -54,7 +54,7 @@ socket.on('message', (msg, rinfo) => {
       }
       break;
     case 'need-forward':
-      const {ports} = pkg.data.ports;
+      const [ports] = [pkg.data.ports];
       const p = [];
 
       new Promise(resolve => {
