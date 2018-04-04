@@ -18,12 +18,16 @@ function broadcastForward() {
     const needsToForward = _.intersectionWith(ports, peer.forwarded, (a, b) => a.port === b.port && a.protocol === b.protocol);
 
     if (needsToForward.length) {
+      console.log(`[binder] sending need-forward ${peer.endpoint.address}:${peer.endpoint.port}`);
+
       server.send(JSON.stringify({
         opCode: 'need-forward',
         data: {
           ports: needsToForward
         }
       }), peer.endpoint.port, peer.endpoint.address);
+    } else {
+      console.log(`[binder] NOT sending need-forward ${peer.endpoint.address}:${peer.endpoint.port}`);
     }
   });
 }
