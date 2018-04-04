@@ -51,7 +51,7 @@ function sendNewSucker(peerInfo) {
     server.send(JSON.stringify({
       opcode: 'new-sucker',
       data: peerInfo
-    }), peer.endpoint.port, peer.end.address);
+    }), peer.endpoint.port, peer.endpoint.address);
   });
 }
 
