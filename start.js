@@ -28,8 +28,10 @@ if (peersArgument) {
 /// endregion
 
 Promise.props(promises).then(({api, connector}) => {
-  connector.addPeer(peers[0]);
-  connector.update();
+  if (connector) {
+    connector.addPeer(peers[0]);
+    connector.update();
+  }
 });
 
 
