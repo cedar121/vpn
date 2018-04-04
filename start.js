@@ -8,14 +8,15 @@ const binderPort = 27000;
 const options = {};
 
 options.ignoreTunnelingActions = process.argv.find(arg => arg === '--ignoreTunneling');
+options.onlyAsBinder = process.argv.find(arg => arg === '--onlyAsBinder');
 
 const promises = {};
 
-if (!options.ignoreTunnelingActions) {
-  promises['binder'] = binder.run();
-}
+promises['binder'] = binder.run();
 
-promises['connector'] = connectorFactory.create();
+if (!options.onlyAsBinder) {
+  promises['connector'] = connectorFactory.create();
+}
 
 /// region parsing peers argument
 const peers = [];
