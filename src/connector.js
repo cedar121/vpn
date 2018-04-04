@@ -3,6 +3,9 @@ const _ = require('lodash');
 const dgram = require('dgram');
 const upnp = require('nat-upnp').createClient();
 const utils = require('./utils');
+const log = require('tracer').colorConsole({
+  format: '<{{title}}> {{message}}'
+});
 
 class UserNet {
   constructor() {
@@ -55,13 +58,17 @@ socket.on('message', (msg, rinfo) => {
       break;
     case 'need-forward':
       const [ports] = [pkg.data.ports];
+
+      portForwarding.need = ports;
+
       const p = [];
+
+      log.debug(`stage1 ${utils.log.ports(ports)}`);
 
       new Promise(resolve => {
         upnp.getMappings((err, mappings) => {
           ports.forEach(port => {
             if (mappings.findIndex(mapping => mapping.private.port === port.port && mapping.protocol.toUpperCase() === port.protocol.toUpperCase()) !== -1) {
-              console.log(`ALREADY ${port.port} ${port.protocol}`, mappings);
               // Порт уже проброшен
             } else {
               p.push(port);
@@ -71,7 +78,7 @@ socket.on('message', (msg, rinfo) => {
           resolve(p);
         });
       }).then(ports => {
-        console.log(ports);
+        log.debug(`stage2 ${utils.log.ports(ports)}`);
 
         const upnpMappingPromises = [];
 
@@ -86,19 +93,21 @@ socket.on('message', (msg, rinfo) => {
         });
 
         Promise.all(upnpMappingPromises).then(() => {
-          socket.send(JSON.stringify({
-            opCode: 'forward-result',
-            data: {
-              ports: ports.map(port => {
-                return {
-                  public: port.port,
-                  private: port.port,
-                  protocol: port.protocol.toUpperCase()
-                }
-              })
-            }
-          }), peers[0].port, peers[0].address, (err, n) => {
-            // console.log(err, n);
+          utils.connector.checkPorts(portForwarding.need).then(({doneUpnp, done}) => {
+            socket.send(JSON.stringify({
+              opCode: 'forward-result',
+              data: {
+                ports: _.map(doneUpnp, (port, idx) => {
+                  return {
+                    name: done[idx].port,
+                    protocol: done[idx].protocol,
+                    public: port.public.port
+                  }
+                })
+              }
+            }), peers[0].port, peers[0].address, (err, n) => {
+              // console.log(err, n);
+            });
           });
         });
       });

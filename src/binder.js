@@ -22,7 +22,7 @@ function broadcastForward() {
       console.log(`[binder] sending need-forward ${peer.endpoint.address}:${peer.endpoint.port}`);
       console.log(_.chain(needsToForward).groupBy('protocol').map((p, key) => {
         return `${key} ${p.map(pp => pp.port).join(',')}`
-      }).join(',').value());
+      }).join('; ').value());
 
       server.send(JSON.stringify({
         opCode: 'need-forward',
@@ -76,7 +76,7 @@ server.on('message', (msg, rinfo) => {
       broadcastForward();
       break;
     case 'forward-result':
-      console.log(pkg.data);
+      utils.logger.debug(pkg.data.ports);
       break;
   }
 });

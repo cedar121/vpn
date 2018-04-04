@@ -3,7 +3,7 @@ const upnp = require('nat-upnp').createClient();
 const utils = require('./src/utils');
 const args = require('optimist')('ports --tcp=27000,27500-28000 --udp=9999,10000-20000'.split(' ')).argv;
 
-
+/*
 upnp.getMappings((err, mappings) => {
   mappings.forEach(mapping => {
     upnp.portUnmapping({
@@ -20,7 +20,9 @@ const ports = [
 
 const forwarded = [
   {port: 80, protocol: 'TCP'}
-];
+];*/
+
+console.log(_.range(28000, 28003));
 
 // const ports = [80, 50000];
 // const forwarded = [80];

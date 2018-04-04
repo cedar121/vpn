@@ -108,7 +108,7 @@ function pushPorts(arr, ports, protocol) {
     let p = [];
 
     if (Array.isArray(port)) {
-      p = _.range(port[0], port[1]);
+      p = _.range(port[0], parseInt(port[1]) + 1);
     } else {
       p = [port];
     }
@@ -125,5 +125,39 @@ module.exports = {
   getNetworkIP,
   checkTcpIsOpened,
   usingPorts,
-  pushPorts
+  pushPorts,
+  log: {
+    ports(ports) {
+      return _.chain(ports).groupBy('protocol').map((p, key) => {
+        return `${key} ${p.map(pp => pp.port).join(',')}`
+      }).join('; ').value()
+    }
+  },
+  logger: require('tracer').colorConsole({
+    format: '<{{title}}> {{message}}'
+  }),
+  connector: {
+    checkPorts(needs) {
+      return new Promise((resolve) => {
+        const done = [];
+        const doneUpnp = [];
+        const none = [];
+
+        upnp.getMappings((err, mappings) => {
+          needs.forEach(port => {
+            let idx;
+
+            if (idx = (mappings.findIndex(mapping => mapping.private.port === port.port && mapping.protocol.toUpperCase() === port.protocol.toUpperCase()) !== -1)) {
+              done.push(port);
+              doneUpnp.push(mappings[idx]);
+            } else {
+              none.push(port);
+            }
+          });
+
+          resolve({done, doneUpnp, none});
+        });
+      });
+    }
+  }
 };
