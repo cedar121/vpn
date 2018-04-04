@@ -3,7 +3,11 @@ const binder = require('./src/binder');
 
 const binderPort = 27000;
 
-binder.run().then(api => {
+const options = {};
+
+options.ignoreTunnelingActions = process.argv.find(arg => arg === '-c');
+
+binder.run(options).then(api => {
   const peersArgument = process.argv.find(arg => arg.startsWith('--peers'));
 
   if (peersArgument) {
