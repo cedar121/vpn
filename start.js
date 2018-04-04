@@ -10,10 +10,13 @@ const options = {};
 
 options.ignoreTunnelingActions = process.argv.find(arg => arg === '--ignoreTunneling');
 options.onlyAsBinder = Boolean(process.argv.find(arg => arg === '--onlyAsBinder'));
+options.disableBinder = Boolean(process.argv.find(arg => arg === '--disableBinder'));
 
 const promises = {};
 
-promises['binder'] = binder.run();
+if (!options.disableBinder) {
+  promises['binder'] = binder.run();
+}
 
 if (!options.onlyAsBinder) {
   promises['connector'] = connectorFactory.create();

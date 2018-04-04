@@ -11,7 +11,7 @@ const ports = [];
 const pingPongTimer = setInterval(broadcastForward, 30000);
 
 function broadcastForward() {
-  console.log(`[binder] ping`);
+  console.log(`[binder] broadcast-forward`);
 
   peers.forEach(peer => {
     const alreadyForwarded = _.differenceWith(ports, peer.forwarded, (a, b) => a.port === b.port && a.protocol === b.protocol);
@@ -63,6 +63,7 @@ server.on('message', (msg, rinfo) => {
       peers.push(peerInfo);
 
       sendNewSucker(peerInfo);
+      broadcastForward();
       break;
   }
 });
