@@ -5,6 +5,7 @@ const utils = require('./utils');
 const server = dgram.createSocket('udp4');
 
 const peers = [];
+const ports = [];
 
 server.on('listening', () => {
   console.log(`[binder] listening ${server.address().address}:${server.address().port}`);
@@ -21,9 +22,9 @@ server.on('error', err => {
 server.on('message', (msg, rinfo) => {
   const pkg = JSON.parse(msg.toString());
 
-  console.log(`[binder] message ${rinfo.address}:${rinfo.port} {opcode: ${pkg.opcode}}`);
+  console.log(`[binder] message ${rinfo.address}:${rinfo.port} {opCode: ${pkg.opCode}}`);
 
-  switch (pkg.opcode) {
+  switch (pkg.opCode) {
     case 'register':
       let bid = 2;
 
@@ -49,7 +50,7 @@ function sendNewSucker(peerInfo) {
     console.log(`[binder] sending new sucker to {name: ${peer.name}, endpoint: ${peer.endpoint.address}:${peer.endpoint.port}}`);
 
     server.send(JSON.stringify({
-      opcode: 'new-sucker',
+      opCode: 'new-sucker',
       data: peerInfo
     }), peer.endpoint.port, peer.endpoint.address);
   });
@@ -58,7 +59,11 @@ function sendNewSucker(peerInfo) {
 function run() {
   return new Promise((resolve, reject) => {
     server.on('listening', () => {
-      resolve();
+      resolve({
+        sendOrderForPortForward(ports) {
+          console.log
+        }
+      });
     });
 
     server.bind(27000);
