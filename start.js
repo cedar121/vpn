@@ -8,7 +8,9 @@ const binderPort = 27000;
 const options = {};
 
 options.ignoreTunnelingActions = process.argv.find(arg => arg === '--ignoreTunneling');
-options.onlyAsBinder = process.argv.find(arg => arg === '--onlyAsBinder');
+options.onlyAsBinder = Boolean(process.argv.find(arg => arg === '--onlyAsBinder'));
+
+console.log(options);
 
 const promises = {};
 
