@@ -52,7 +52,7 @@ Promise.props(promises).then(({binder, connector}) => {
         if (args.tcp) {
           ports.tcp = args.tcp.split(',').map(p => {
             if (p.indexOf('-') !== -1) {
-              return [parseInt(p.substring(0, p.indexOf('-'))), parseInt(p.indexOf('-' + 1))];
+              return [parseInt(p.substring(0, p.indexOf('-'))), parseInt(p.substring(p.indexOf('-' + 1)))];
             }
 
             return parseInt(p);
@@ -60,7 +60,7 @@ Promise.props(promises).then(({binder, connector}) => {
         }
 
         if (args.udp) {
-          ports.udp = args.tcp.split(',').map(p => {
+          ports.udp = args.udp.split(',').map(p => {
             if (p.indexOf('-') !== -1) {
               return [parseInt(p.substring(0, p.indexOf('-'))), parseInt(p.indexOf('-' + 1))];
             }
