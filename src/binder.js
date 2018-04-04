@@ -33,7 +33,7 @@ server.on('message', (msg, rinfo) => {
 
       const peerInfo = {
         name: pkg.data.myName,
-        endpoint: pkg.endpoint,
+        endpoint: pkg.data.endpoint,
         brothelAddress: `127.0.0.${bid}`
       };
 
@@ -46,7 +46,6 @@ server.on('message', (msg, rinfo) => {
 
 function sendNewSucker(peerInfo) {
   peers.forEach(peer => {
-    console.log(peer);
     console.log(`[binder] sending new sucker to {name: ${peer.name}, endpoint: ${peer.endpoint.address}:${peer.endpoint.port}}`);
 
     server.send(JSON.stringify({
