@@ -5,7 +5,12 @@ const args = require('optimist')('ports --tcp=27000,27500-28000 --udp=9999,10000
 
 
 upnp.getMappings((err, mappings) => {
-  console.log(mappings);
+  mappings.forEach(mapping => {
+    upnp.portUnmapping({
+      public: mapping.public.port,
+      protocol: mapping.protocol
+    })
+  });
 });
 
 const ports = [

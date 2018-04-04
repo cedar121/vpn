@@ -20,7 +20,7 @@ function broadcastForward() {
 
     if (needsToForward.length) {
       console.log(`[binder] sending need-forward ${peer.endpoint.address}:${peer.endpoint.port}`);
-      console.log(_.groupBy(needsToForward, 'protocol').map((p, key) => {
+      console.log(_.chain(needsToForward).groupBy('protocol').map((p, key) => {
         return `${key} ${p.map(pp => pp.port).join(',')}`
       }));
 
