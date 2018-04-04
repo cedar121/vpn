@@ -42,6 +42,8 @@ server.on('message', (msg, rinfo) => {
 
 function sendNewSucker(peerInfo) {
   peers.forEach(peer => {
+    console.log(`[binder] sending new sucker to {name: ${peer.name}, endpoint: ${peer.endpoint.address}:${peer.endpoint.port}}`);
+
     server.send(JSON.stringify({
       opcode: 'new-sucker',
       data: peerInfo

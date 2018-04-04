@@ -47,7 +47,7 @@ function create() {
             }
           }
         }), peers[0].port, peers[0].address, (err, n) => {
-          console.log(err, n);
+          // console.log(err, n);
         });
       }
     };
