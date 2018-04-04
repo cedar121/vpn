@@ -62,7 +62,7 @@ function parsePortInput(str) {
   const ports = {};
 
   if (args.tcp) {
-    ports.tcp = args.tcp.split(',').map(p => {
+    ports.tcp = String(args.tcp).split(',').map(p => {
       if (p.indexOf('-') !== -1) {
         return [parseInt(p.substring(0, p.indexOf('-'))), parseInt(p.substring(p.indexOf('-') + 1))];
       }
@@ -72,7 +72,7 @@ function parsePortInput(str) {
   }
 
   if (args.udp) {
-    ports.udp = args.udp.split(',').map(p => {
+    ports.udp = String(args.udp).split(',').map(p => {
       if (p.indexOf('-') !== -1) {
         return [parseInt(p.substring(0, p.indexOf('-'))), parseInt(p.substring(p.indexOf('-') + 1))];
       }
