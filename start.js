@@ -41,40 +41,48 @@ Promise.props(promises).then(({binder, connector}) => {
 
   if (binder) {
     read({}, (err, str) => {
-      if (err) return console.log(err);
+      if (err) {
+        return;
+        return console.log(err);
+      }
 
-      // ports --tcp=27000,27500-28000 --udp=9999,10000-20000
       if (str.startsWith('ports')) {
-        const args = require('optimist')(str.substring(5).split(' ')).argv;
-
-        const ports = {};
-
-        if (args.tcp) {
-          ports.tcp = args.tcp.split(',').map(p => {
-            if (p.indexOf('-') !== -1) {
-              return [parseInt(p.substring(0, p.indexOf('-'))), parseInt(p.substring(p.indexOf('-' + 1)))];
-            }
-
-            return parseInt(p);
-          });
-        }
-
-        if (args.udp) {
-          ports.udp = args.udp.split(',').map(p => {
-            if (p.indexOf('-') !== -1) {
-              return [parseInt(p.substring(0, p.indexOf('-'))), parseInt(p.indexOf('-' + 1))];
-            }
-
-            return parseInt(p);
-          });
-        }
-
-        console.log(ports);
+        binder.sendOrderForPortForward(parsePortInput(str.substring(5)));
       }
     });
+
+    binder.sendOrderForPortForward(parsePortInput(process.argv.slice(2).join(' ')));
   }
 });
 
+function parsePortInput(str) {
+  // ports --tcp=27000,27500-28000 --udp=9999,10000-20000
+
+  const args = require('optimist')(str.split(' ')).argv;
+  const ports = {};
+
+  if (args.tcp) {
+    ports.tcp = args.tcp.split(',').map(p => {
+      if (p.indexOf('-') !== -1) {
+        return [parseInt(p.substring(0, p.indexOf('-'))), parseInt(p.substring(p.indexOf('-') + 1))];
+      }
+
+      return parseInt(p);
+    });
+  }
+
+  if (args.udp) {
+    ports.udp = args.udp.split(',').map(p => {
+      if (p.indexOf('-') !== -1) {
+        return [parseInt(p.substring(0, p.indexOf('-'))), parseInt(p.substring(p.indexOf('-') + 1))];
+      }
+
+      return parseInt(p);
+    });
+  }
+
+  return ports;
+}
 
 /*
 binder.run(options).then(api => {

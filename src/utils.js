@@ -1,4 +1,5 @@
 const http = require('http');
+const _ = require('lodash');
 const qs = require('qs');
 const axios = require('axios');
 const natUpnp = require('nat-upnp');
@@ -98,8 +99,31 @@ function usingPorts(ppid) {
   });
 }
 
+function pushPorts(arr, ports, protocol) {
+  if (!Array.isArray(ports)) {
+    ports = [ports];
+  }
+
+  ports.forEach(port => {
+    let p = [];
+
+    if (Array.isArray(port)) {
+      p = _.range(port[0], port[1]);
+    } else {
+      p = [port];
+    }
+
+    p.forEach(p => {
+      if (arr.findIndex(pp => pp.port === p && pp.protocol === protocol) === -1) {
+        arr.push({port: p, protocol});
+      }
+    });
+  });
+}
+
 module.exports = {
   getNetworkIP,
   checkTcpIsOpened,
-  usingPorts
+  usingPorts,
+  pushPorts
 };

@@ -1,11 +1,32 @@
 const Promise = require('bluebird');
+const _ = require('lodash');
 const dgram = require('dgram');
+const timers = require('timers');
 const utils = require('./utils');
 
 const server = dgram.createSocket('udp4');
 
 const peers = [];
 const ports = [];
+const pingPongTimer = setInterval(broadcastForward, 30000);
+
+function broadcastForward() {
+  console.log(`[binder] ping`);
+
+  peers.forEach(peer => {
+    const alreadyForwarded = _.differenceWith(ports, peer.forwarded, (a, b) => a.port === b.port && a.protocol === b.protocol);
+    const needsToForward = _.intersectionWith(ports, peer.forwarded, (a, b) => a.port === b.port && a.protocol === b.protocol);
+
+    if (needsToForward.length) {
+      server.send(JSON.stringify({
+        opCode: 'need-forward',
+        data: {
+          ports: needsToForward
+        }
+      }), peer.endpoint.port, peer.endpoint.address);
+    }
+  });
+}
 
 server.on('listening', () => {
   console.log(`[binder] listening ${server.address().address}:${server.address().port}`);
@@ -35,7 +56,8 @@ server.on('message', (msg, rinfo) => {
       const peerInfo = {
         name: pkg.data.myName,
         endpoint: pkg.data.endpoint,
-        brothelAddress: `127.0.0.${bid}`
+        brothelAddress: `127.0.0.${bid}`,
+        forwarded: []
       };
 
       peers.push(peerInfo);
@@ -60,10 +82,19 @@ function run() {
   return new Promise((resolve, reject) => {
     server.on('listening', () => {
       resolve({
-        sendOrderForPortForward(ports) {
-          console.log
+        sendOrderForPortForward(_ports) {
+          console.log(`[binder] pushing new ports`);
+
+          utils.pushPorts(ports, _ports.tcp || [], 'TCP');
+          utils.pushPorts(ports, _ports.udp || [], 'UDP');
+
+          broadcastForward();
         }
       });
+    });
+
+    server.on('listening', () => {
+
     });
 
     server.bind(27000);
