@@ -15,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/nanodesu88/vpn/issues"
   },
-  "homepage": "https://github.com/nanodesu88/vpn#readme"
+  "homepage": "https://github.com/nanodesu88/vpn#readme",
+  "dependencies": {
+    "@types/node": "^9.6.1",
+    "axios": "^0.18.0",
+    "nat-upnp": "^1.1.1",
+    "qs": "^6.5.1",
+    "querystring": "^0.2.0"
+  }
 }
