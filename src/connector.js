@@ -3,6 +3,7 @@ const dgram = require('dgram');
 const utils = require('./utils');
 
 const socket = dgram.createSocket('udp4');
+const me = {};
 
 socket.on('error', err => {
   console.log(`[connector] error ${err}`);
@@ -14,12 +15,22 @@ socket.on('close', () => {
 
 socket.on('listening', () => {
   console.log(`[connector] listening ${socket.address().address}:${socket.address().port}`);
+
+  me.port = socket.address().port;
 });
 
 socket.on('message', (msg, rinfo) => {
   const pkg = JSON.parse(msg.toString());
 
   console.log(`[connector] message [${rinfo.address}:${rinfo.port}] {opcode: ${pkg.opcode}}`);
+
+  switch (pkg.opcode) {
+    case 'new-sucker':
+      const isMe = me.address === pkg.data.endpoint.address && me.port === pkg.data.endpoint.port;
+
+      console.log(`[connector] new-sucker {endpoint: ${pkg.data.endpoint}} {isMe: ${isMe}`);
+      break;
+  }
 });
 
 const peers = [];
@@ -32,6 +43,8 @@ function create() {
   return Promise.props({
     ip: utils.getNetworkIP()
   }).then(({ip}) => {
+    me.address = ip;
+
     return {
       addPeer(address, port = 27000) {
         peers.push({address, port});
