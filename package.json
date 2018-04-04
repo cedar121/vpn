@@ -20,6 +20,7 @@
   "dependencies": {
     "@types/node": "^9.6.1",
     "axios": "^0.18.0",
+    "bluebird": "^3.5.1",
     "lodash": "^4.17.5",
     "nat-upnp": "^1.1.1",
     "qs": "^6.5.1",
