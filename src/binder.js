@@ -4,6 +4,8 @@ const dgram = require('dgram');
 const timers = require('timers');
 const utils = require('./utils');
 
+const logger = utils.logger;
+
 const server = dgram.createSocket('udp4');
 
 const peers = [];
@@ -67,7 +69,10 @@ server.on('message', (msg, rinfo) => {
         name: pkg.data.myName,
         endpoint: pkg.data.endpoint,
         brothelAddress: `127.0.0.${bid}`,
-        forwarded: []
+        forwarded: [],
+        state: {
+          forwardedPortsChecked: false
+        }
       };
 
       peers.push(peerInfo);
@@ -76,10 +81,30 @@ server.on('message', (msg, rinfo) => {
       broadcastForward();
       break;
     case 'forward-result':
-      utils.logger.debug(`[binder] ${utils.log.ports(pkg.data.ports)}`);
+      utils.logger.debug(`[binder][got forwarded ports] ${utils.log.ports(pkg.data.ports)}`);
+
+      const peer = findPeerByEndPoint(rinfo.address, rinfo.port);
+
+      peer.forwarded = pkg.data.ports;
+
+      checkForwardedPorts(peer);
       break;
   }
 });
+
+function findPeerByEndPoint(address, port) {
+  return peers.find(peer => peer.endpoint.address === address && peer.endpoint.port === port);
+}
+
+function checkForwardedPorts(peer) {
+  logger.debug(`[binder][checking forwarded ports]{peer: ${peer.endpoint.address}}`);
+
+  peer.forwarded.forEach(port => {
+    server.send(JSON.stringify({
+      opCode: 'check-forwarded-port'
+    }), peer.endpoint.port, peer.endpoint.address);
+  });
+}
 
 function sendNewSucker(peerInfo) {
   peers.forEach(peer => {
