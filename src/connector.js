@@ -1,4 +1,5 @@
 const Promise = require('bluebird');
+const _ = require('lodash');
 const dgram = require('dgram');
 const upnp = require('nat-upnp').createClient();
 const utils = require('./utils');
@@ -16,6 +17,10 @@ class UserNet {
 const socket = dgram.createSocket('udp4');
 const me = {};
 const userNet = new UserNet();
+const portForwarding = {
+  need: [],
+  already: []
+};
 
 socket.on('error', err => {
   console.log(`[connector] error ${err}`);
@@ -47,6 +52,53 @@ socket.on('message', (msg, rinfo) => {
       } else {
         userNet.add(pkg.data);
       }
+      break;
+    case 'need-forward':
+      const {ports} = pkg.data.ports;
+      const p = [];
+
+      new Promise(resolve => {
+        upnp.getMappings((err, mappings) => {
+          ports.forEach(port => {
+            if ((mappings.findIndex(mapping => mapping.private.port === port.port) !== -1) && mapping.protocol.toUpperCase() === port.protocol.toUpperCase()) {
+              // Порт уже проброшен
+            } else {
+              p.push(port);
+            }
+          });
+
+          resolve(p);
+        });
+      }).then(ports => {
+        const upnpMappingPromises = [];
+
+        ports.forEach(port => {
+          upnpMappingPromises.push(new Promise((resolve, reject) => {
+            upnp.portMapping({public: port.port, private: port.port, protocol: port.protocol}, err => {
+              if (err) reject(err);
+
+              resolve();
+            });
+          }));
+        });
+
+        Promise.all(upnpMappingPromises).then(() => {
+          socket.send(JSON.stringify({
+            opCode: 'forward-result',
+            data: {
+              ports: ports.map(port => {
+                return {
+                  public: port.port,
+                  private: port.port,
+                  protocol: port.protocol.toUpperCase()
+                }
+              })
+            }
+          }), peers[0].port, peers[0].address, (err, n) => {
+            // console.log(err, n);
+          });
+        });
+      });
       break;
   }
 });
