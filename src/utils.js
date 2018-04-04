@@ -128,7 +128,20 @@ module.exports = {
   pushPorts,
   log: {
     ports(ports) {
-      return _.chain(ports).groupBy('protocol').map((p, key) => {
+      if (!ports.length) {
+        return '';
+      }
+
+      const chain = _.chain(ports);
+
+      // port mapping format
+      if (ports[0].public && ports[0].name && !ports.port) {
+        return chain.groupBy('protocol').map((ports, protocol) => {
+          return `${protocol}` + ports.map(port => port.name + port.name === port.public ? '' : `(${port.public})`).join(',');
+        }).join('; ').value();
+      }
+
+      return chain.groupBy('protocol').map((p, key) => {
         return `${key} ${p.map(pp => pp.port).join(',')}`
       }).join('; ').value()
     }
@@ -147,7 +160,7 @@ module.exports = {
           needs.forEach(port => {
             let idx;
 
-            if (idx = (mappings.findIndex(mapping => mapping.private.port === port.port && mapping.protocol.toUpperCase() === port.protocol.toUpperCase()) !== -1)) {
+            if ((idx = mappings.findIndex(mapping => mapping.private.port === port.port && mapping.protocol.toUpperCase() === port.protocol.toUpperCase())) !== -1) {
               done.push(port);
               doneUpnp.push(mappings[idx]);
             } else {

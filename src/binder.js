@@ -76,7 +76,7 @@ server.on('message', (msg, rinfo) => {
       broadcastForward();
       break;
     case 'forward-result':
-      utils.logger.debug(pkg.data.ports);
+      utils.logger.debug(`[binder] ${utils.log.ports(pkg.data.ports)}`);
       break;
   }
 });
