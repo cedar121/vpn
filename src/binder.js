@@ -27,6 +27,8 @@ function broadcastForward() {
         }
       }), peer.endpoint.port, peer.endpoint.address);
     } else {
+      console.log(ports, peer.forwarded);
+
       console.log(`[binder] NOT sending need-forward ${peer.endpoint.address}:${peer.endpoint.port}`);
     }
   });
