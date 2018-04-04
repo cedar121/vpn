@@ -137,7 +137,7 @@ module.exports = {
       // port mapping format
       if (ports[0].public && ports[0].name && !ports.port) {
         return chain.groupBy('protocol').map((ports, protocol) => {
-          return `${protocol}` + ports.map(port => port.name + port.name === port.public ? '' : `(${port.public})`).join(',');
+          return `${protocol}` + ports.map(port => port.name + (port.name === port.public ? '' : `(${port.public})`)).join(',');
         }).join('; ').value();
       }
 
