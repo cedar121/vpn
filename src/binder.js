@@ -8,7 +8,8 @@ const server = dgram.createSocket('udp4');
 
 const peers = [];
 const ports = [];
-const pingPongTimer = setInterval(broadcastForward, 30000);
+
+// const pingPongTimer = setInterval(broadcastForward, 30000);
 
 function broadcastForward() {
   console.log(`[binder] broadcast-forward`);
@@ -70,6 +71,9 @@ server.on('message', (msg, rinfo) => {
 
       sendNewSucker(peerInfo);
       broadcastForward();
+      break;
+    case 'forward-result':
+      console.log(pkg.data);
       break;
   }
 });

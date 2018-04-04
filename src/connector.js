@@ -60,7 +60,8 @@ socket.on('message', (msg, rinfo) => {
       new Promise(resolve => {
         upnp.getMappings((err, mappings) => {
           ports.forEach(port => {
-            if ((mappings.findIndex(mapping => mapping.private.port === port.port) !== -1) && mapping.protocol.toUpperCase() === port.protocol.toUpperCase()) {
+            if (mappings.findIndex(mapping => mapping.private.port === port.port && mapping.protocol.toUpperCase() === port.protocol.toUpperCase()) !== -1) {
+              console.log(`ALREADY ${port.port} ${port.protocol}`, mappings);
               // Порт уже проброшен
             } else {
               p.push(port);
@@ -70,11 +71,13 @@ socket.on('message', (msg, rinfo) => {
           resolve(p);
         });
       }).then(ports => {
+        console.log(ports);
+
         const upnpMappingPromises = [];
 
         ports.forEach(port => {
           upnpMappingPromises.push(new Promise((resolve, reject) => {
-            upnp.portMapping({public: port.port, private: port.port, protocol: port.protocol}, err => {
+            upnp.portMapping({public: port.port, private: port.port, protocol: port.protocol, description: `${port.protocol}-${port.port}`}, err => {
               if (err) reject(err);
 
               resolve();
