@@ -14,8 +14,8 @@ function broadcastForward() {
   console.log(`[binder] broadcast-forward`);
 
   peers.forEach(peer => {
-    const alreadyForwarded = _.differenceWith(ports, peer.forwarded, (a, b) => a.port === b.port && a.protocol === b.protocol);
-    const needsToForward = _.intersectionWith(ports, peer.forwarded, (a, b) => a.port === b.port && a.protocol === b.protocol);
+    const needsToForward = _.differenceWith(ports, peer.forwarded, (a, b) => a.port === b.port && a.protocol === b.protocol);
+    const alreadyForwarded = _.intersectionWith(ports, peer.forwarded, (a, b) => a.port === b.port && a.protocol === b.protocol);
 
     if (needsToForward.length) {
       console.log(`[binder] sending need-forward ${peer.endpoint.address}:${peer.endpoint.port}`);
