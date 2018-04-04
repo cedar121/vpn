@@ -3,7 +3,9 @@ const binder = require('./src/binder');
 
 const binderPort = 27000;
 
-binder.run();
+binder.run().then(api => {
+
+});
 
 if (_.includes(process.argv, '-o')) {
 
