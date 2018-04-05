@@ -102,7 +102,7 @@ function checkForwardedPorts(peer) {
   peer.forwarded.forEach(port => {
     server.send(JSON.stringify({
       opCode: 'check-forwarded-port'
-    }), peer.public, peer.endpoint.address);
+    }), port.public, peer.endpoint.address);
   });
 }
 

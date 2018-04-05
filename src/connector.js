@@ -107,7 +107,7 @@ socket.on('message', (msg, rinfo) => {
               });
             });
 
-            socket.bind();
+            socketExternal.bind();
           }));
         });
 
