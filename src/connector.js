@@ -18,6 +18,9 @@ class UserNet {
 }
 
 const socket = dgram.createSocket('udp4');
+// Пул сокетов для проброшенных портов
+const socketPool = [];
+
 const me = {};
 const userNet = new UserNet();
 const portForwarding = {
@@ -25,6 +28,7 @@ const portForwarding = {
   already: []
 };
 
+/// region basic events
 socket.on('error', err => {
   console.log(`[connector] error ${err}`);
 });
@@ -38,6 +42,7 @@ socket.on('listening', () => {
 
   me.port = socket.address().port;
 });
+/// endregion
 
 socket.on('message', (msg, rinfo) => {
   const pkg = JSON.parse(msg.toString());
@@ -84,11 +89,25 @@ socket.on('message', (msg, rinfo) => {
 
         ports.forEach(port => {
           upnpMappingPromises.push(new Promise((resolve, reject) => {
-            upnp.portMapping({public: port.port, private: port.port, protocol: port.protocol, description: `${port.protocol}-${port.port}`}, err => {
-              if (err) reject(err);
+            const socketExternal = dgram.createSocket('udp4');
 
-              resolve();
+            socketExternal.on('listening', () => {
+              const privatePort = socketExternal.address().port;
+
+              upnp.portMapping({public: port.port, private: privatePort, protocol: port.protocol, description: `${port.protocol}-${port.port}`}, err => {
+                if (err) return reject(err);
+
+                socketPool.push(socketExternal);
+
+                socketExternal.on('message', (msg, rinfo) => {
+                  log.debug(`[connector][external][${port.port}] <- [${rinfo.address}:${rinfo.port}]`);
+                });
+
+                resolve();
+              });
             });
+
+            socket.bind();
           }));
         });
 

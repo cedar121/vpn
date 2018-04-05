@@ -150,6 +150,9 @@ module.exports = {
     format: '<{{title}}> {{message}}'
   }),
   connector: {
+    /**
+     * Какие порты из необходимых проброшены, а какие нет
+     */
     checkPorts(needs) {
       return new Promise((resolve) => {
         const done = [];
@@ -171,6 +174,9 @@ module.exports = {
           resolve({done, doneUpnp, none});
         });
       });
+    },
+    getFreePort(ignore) {
+      utils.
     }
   }
 };
